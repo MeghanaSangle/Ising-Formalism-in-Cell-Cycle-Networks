@@ -1,0 +1,1237 @@
+FormatVersion: 0.0.1
+
+Model{
+ModelMetaData{
+ModelName: Complete_Cell_Cycle_Model
+ModelVersion: 1.0.0
+ModelPaper: 
+ModelDescription: Complete mammalian cell cycle model with restriction and phase switches
+ModelNotes: Based on Deritei et al. (2016) modular cell cycle model
+BiasOrderFirst: 
+BiasOrderLast: 
+ModelMetaData}
+
+ModelMapping{
+Switch: Cell_Cycle_Restriction (E2F1, CyclinE, CyclinD, RB, p27, Myc)
+Switch: Cell_Cycle_Phase (CyclinA, CyclinB, Cdh1, Cdc20, pAPC, UbcH10, Cdk1, Wee1, Mad2, Cdc25C, Cdc25A, Replication, four_N_DNA, Metaphase)
+Switch: Growth_signalling (GF)
+ModelMapping}
+
+SwitchProfiles{
+SwitchPhenotypes{
+SwitchName: Cell_Cycle_Restriction
+            pre_RS:0 *= (CyclinD:0, CyclinE:0, RB:1, p27:1, E2F1:0, Myc:0)
+            post_RS:1 *= (CyclinD:1, CyclinE:1, RB:0, p27:0, E2F1:1, Myc:1)
+SwitchPhenotypes}
+
+SwitchPhenotypes{
+SwitchName: Growth_signalling
+            GF_OFF:0 *= (GF:0)
+            GF_ON:1 *= (GF:1)
+SwitchPhenotypes}
+SwitchProfiles}
+
+ModelGraph{
+Node{
+NodeMetaData{
+NodeName: Cell_Cycle_Restriction 
+NodeGenes: 
+NodeType: Protein
+NodeColor: blue
+NodeCoordinate: 1000, 800
+NodeDescription: G1 cyclin, promotes G1/S transition
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cell_Cycle_Restriction *= Cell_Cycle_Restriction and Growth_signalling
+DiscreteLogic}
+NodeGate}
+
+
+
+
+InLink{
+InputNode: Cell_Cycle_Restriction
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: Growth_signalling
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: No
+InLink}
+
+Node}
+
+Node{
+NodeMetaData{
+NodeName: Cell_Cycle_Phase 
+NodeGenes: 
+NodeType: Protein
+NodeColor: blue
+NodeCoordinate: 1000, 800
+NodeDescription: G1 cyclin, promotes G1/S transition
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cell_Cycle_Phase *= Cell_Cycle_Phase and Growth_signalling
+DiscreteLogic}
+NodeGate}
+
+
+
+
+InLink{
+InputNode: Cell_Cycle_Phase
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: Growth_signalling
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: No
+InLink}
+
+Node}
+
+Node{
+NodeMetaData{
+NodeName: Growth_signalling
+NodeGenes: 
+NodeType: Environment
+NodeColor: gray
+NodeCoordinate: 800, 800
+NodeDescription: Growth factor signal from extracellular environment
+NodeNotes: Self-regulating environmental input
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Growth_signalling *= Growth_signalling
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Growth_signalling
+LinkEffect: Activation
+LinkType: Enforced_Env
+LinkDescription: Environmental input maintains its own state
+LinkNotes: 
+InLink}
+Node}
+
+ModelGraph}
+
+Model{
+ModelMetaData{
+ModelName: Complete_Cell_Cycle_Model_molecular
+ModelVersion: 1.0.0
+ModelPaper: 
+ModelDescription: Complete mammalian cell cycle model with restriction and phase switches
+ModelNotes: Based on Deritei et al. (2016) modular cell cycle model
+BiasOrderFirst: 
+BiasOrderLast: 
+ModelMetaData}
+ModelGraph{
+
+// GROWTH SIGNALLING 
+
+Node{
+NodeMetaData{
+NodeName: GF
+NodeGenes: 
+NodeType: Environment
+NodeColor: gray
+NodeCoordinate: 800, 800
+NodeDescription: Growth factor signal from extracellular environment
+NodeNotes: Self-regulating environmental input
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	GF *= GF
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: GF
+LinkEffect: Activation
+LinkType: Enforced_Env
+LinkDescription: Environmental input maintains its own state
+LinkNotes: 
+InLink}
+Node}//GF
+
+// RESTRICTION SWITCH NODES 
+
+Node{
+NodeMetaData{
+NodeName: E2F1
+NodeGenes: 
+NodeType: TranscriptionFactor
+NodeColor: red
+NodeCoordinate: 1250, 1000
+NodeDescription: Master regulator of G1/S transition
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	E2F1 *= (not CyclinA or RB) and (E2F1 or Myc)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: RB
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Direct repression by RB
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: Myc
+LinkEffect: Activation
+LinkType: Direct
+LinkDescription: Transcriptional activation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: CyclinA inhibits E2F1 activity
+LinkNotes: 
+InLink}
+Node}//E2F1
+
+Node{
+NodeMetaData{
+NodeName: CyclinE
+NodeGenes: 
+NodeType: Protein
+NodeColor: green
+NodeCoordinate: 1500, 800
+NodeDescription: S-phase cyclin, promotes DNA replication
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+    CyclinE *= (Cdh1 or (not Metaphase)) and (E2F1 and (not(p27 or RB)))
+
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: Direct
+LinkDescription: Direct transcriptional activation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: RB
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: RB repression of transcription
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: p27
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: CDK inhibitor binding
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdh1 targets CyclinE for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Metaphase
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: Relationship with metaphase
+LinkNotes: 
+InLink}
+Node}//CyclinE
+
+Node{
+NodeMetaData{
+NodeName: CyclinD
+NodeGenes: 
+NodeType: Protein
+NodeColor: blue
+NodeCoordinate: 1000, 800
+NodeDescription: G1 cyclin, promotes G1/S transition
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	CyclinD *= (not Replication) and ( (GF  and (Myc or E2F1)) or (Myc and E2F1 and (GF and (CyclinD or (not RB))) ))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Myc
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: Indirect activation via signaling
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: CyclinD
+LinkEffect: Context_Dependent
+LinkType: Indirect
+LinkDescription: Indirect activation via signaling
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: Direct
+LinkDescription: Direct transcriptional activation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: GF
+LinkEffect: Activation
+LinkType: Enforced_Env
+LinkDescription: Growth factor induction
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: RB
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Indirect relationship
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Replication
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: Relationship with replication
+LinkNotes: 
+InLink}
+Node}//CyclinD
+
+Node{
+NodeMetaData{
+NodeName: RB
+NodeGenes: 
+NodeType: TumorSuppressor
+NodeColor: purple
+NodeCoordinate: 1250, 1200
+NodeDescription: Retinoblastoma protein, cell cycle inhibitor
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	RB *= not (CyclinB and Cdk1) and (not CyclinD) and (p27 or not (CyclinA or CyclinE))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinD
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and inactivation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: CyclinE
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and inactivation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: p27
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: Stabilizes active hypophosphorylated RB
+LinkNotes: No
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and inactivation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and inactivation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and inactivation
+LinkNotes: 
+InLink}
+Node}//RB
+
+Node{
+NodeMetaData{
+NodeName: p27
+NodeGenes: 
+NodeType: CDKInhibitor
+NodeColor: orange
+NodeCoordinate: 1000, 1400
+NodeDescription: Cyclin-dependent kinase inhibitor
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	p27 *= (not (CyclinB and Cdk1)) and (not (CyclinD or (CyclinA and CyclinE)))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinD
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: CDK4/6-cyclinD phosphorylation and degradation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: CyclinE
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: CDK2-cyclinE phosphorylation and degradation
+LinkNotes: Yes
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: CyclinA-CDK phosphorylation and degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: CyclinB-CDK1 phosphorylation and degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Inhibition
+LinkType: Direct
+LinkDescription: Phosphorylation and degradation
+LinkNotes: 
+InLink}
+Node}//p27
+
+Node{
+NodeMetaData{
+NodeName: Myc
+NodeGenes: 
+NodeType: TranscriptionFactor
+NodeColor: brown
+NodeCoordinate: 1500, 1400
+NodeDescription: Proto-oncogene, promotes cell cycle entry
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Myc *= E2F1 or GF
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: MutualActivation
+LinkDescription: Mutual activation with E2F1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: GF
+LinkEffect: Context_Dependent
+LinkType: Indirect
+LinkDescription: Growth factor signaling activates Myc
+LinkNotes: 
+InLink}
+Node}//Myc
+
+// ===== PHASE SWITCH NODES =====
+
+Node{
+NodeMetaData{
+NodeName: CyclinA
+NodeGenes: 
+NodeType: Protein
+NodeColor: teal
+NodeCoordinate: 1750, 800
+NodeDescription: S/G2 cyclin, promotes S phase progression
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	CyclinA *= ((E2F1 and Cdc25A) or CyclinA) and (not ((pAPC and Cdc20) or (Cdh1 and UbcH10)))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: Transcription
+LinkDescription: E2F1 transcriptionally activates CyclinA
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc25A
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdc25A stabilizes CyclinA
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: pAPC targets CyclinA for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdc20 promotes CyclinA degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdh1 targets CyclinA for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: UbcH10
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: UbcH10 promotes CyclinA degradation
+LinkNotes: 
+InLink}
+Node}//CyclinA
+
+Node{
+NodeMetaData{
+NodeName: CyclinB
+NodeGenes: 
+NodeType: Protein
+NodeColor: navy
+NodeCoordinate: 2000, 800
+NodeDescription: M-phase cyclin, promotes mitosis
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	CyclinB *= (not (pAPC and Cdc20)) and (not Cdh1)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: pAPC targets CyclinB for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdc20 promotes CyclinB degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdh1 targets CyclinB for degradation
+LinkNotes: 
+InLink}
+Node}//CyclinB
+
+Node{
+NodeMetaData{
+NodeName: Cdh1
+NodeGenes: 
+NodeType: Protein
+NodeColor: darkgreen
+NodeCoordinate: 2250, 1000
+NodeDescription: APC/C activator, targets cyclins for degradation
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cdh1 *= (not (CyclinB and Cdk1)) and (not CyclinA)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Inhibition
+LinkType: Phosphorylation
+LinkDescription: CyclinA-Cdk phosphorylates and inhibits Cdh1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Inhibition
+LinkType: Phosphorylation
+LinkDescription: CyclinB-Cdk1 phosphorylates and inhibits Cdh1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Inhibition
+LinkType: Phosphorylation
+LinkDescription: Cdk1 phosphorylates and inhibits Cdh1
+LinkNotes: 
+InLink}
+Node}//Cdh1
+
+Node{
+NodeMetaData{
+NodeName: Cdc20
+NodeGenes: 
+NodeType: Protein
+NodeColor: magenta
+NodeCoordinate: 2250, 1200
+NodeDescription: APC/C activator, promotes anaphase onset
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cdc20 *= pAPC and (not Cdh1) and (not Mad2)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdh1 targets Cdc20 for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Mad2
+LinkEffect: Inhibition
+LinkType: Binding_Localization
+LinkDescription: Mad2 inhibits Cdc20 binding to APC/C
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Activation
+LinkType: Complex_Formation
+LinkDescription: pAPC complex promotes Cdc20 activity
+LinkNotes: 
+InLink}
+Node}//Cdc20
+
+Node{
+NodeMetaData{
+NodeName: pAPC
+NodeGenes: 
+NodeType: Protein
+NodeColor: darkcyan
+NodeCoordinate: 2500, 1000
+NodeDescription: Active APC/C complex
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	pAPC *= (pAPC and Cdc20) or (CyclinB and Cdk1)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation maintains APC/C activity
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Activation
+LinkType: Complex_Formation
+LinkDescription: Cdc20 binding activates APC/C
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: CyclinB promotes APC/C activation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdk1 phosphorylation activates APC/C
+LinkNotes: 
+InLink}
+Node}//pAPC
+
+Node{
+NodeMetaData{
+NodeName: UbcH10
+NodeGenes: 
+NodeType: Enzyme
+NodeColor: olive
+NodeCoordinate: 2500, 1200
+NodeDescription: Ubiquitin-conjugating enzyme for APC/C
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	UbcH10 *= (not Cdh1) or (UbcH10 and (Cdc20 or CyclinA or CyclinB))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: Cdh1 inhibits UbcH10 activity
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Activation
+LinkType: Complex_Formation
+LinkDescription: Cdc20 promotes UbcH10 activity
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: CyclinA promotes UbcH10 activity
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: CyclinB promotes UbcH10 activity
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: UbcH10
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation
+LinkNotes: 
+InLink}
+Node}//UbcH10
+
+Node{
+NodeMetaData{
+NodeName: Cdk1
+NodeGenes: 
+NodeType: Kinase
+NodeColor: crimson
+NodeCoordinate: 2000, 1000
+NodeDescription: Master mitotic kinase
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cdk1 *= Cdc25C and (CyclinA or CyclinB) and (Cdk1 or (not Wee1))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Cdc25C
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdc25C dephosphorylates and activates Cdk1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Complex_Formation
+LinkDescription: CyclinA binding activates Cdk1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Complex_Formation
+LinkDescription: CyclinB binding activates Cdk1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Wee1
+LinkEffect: Inhibition
+LinkType: Phosphorylation
+LinkDescription: Wee1 phosphorylates and inhibits Cdk1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: Positive autoregulation through feedback
+LinkNotes: 
+InLink}
+Node}//Cdk1
+
+Node{
+NodeMetaData{
+NodeName: Wee1
+NodeGenes: 
+NodeType: Kinase
+NodeColor: pink
+NodeCoordinate: 2250, 1600
+NodeDescription: Cdk1 inhibitory kinase
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Wee1 *= Replication and (not ((CyclinA or CyclinB) and Cdk1))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Inhibition
+LinkType: Phosphorylation
+LinkDescription: Cdk1 phosphorylates and inhibits Wee1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: CyclinA-Cdk complex inhibits Wee1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Inhibition
+LinkType: Indirect
+LinkDescription: CyclinB-Cdk complex inhibits Wee1
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Replication
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: DNA replication activates Wee1
+LinkNotes: 
+InLink}
+Node}//Wee1
+
+Node{
+NodeMetaData{
+NodeName: Mad2
+NodeGenes: 
+NodeType: Checkpoint
+NodeColor: violet
+NodeCoordinate: 2500, 1600
+NodeDescription: Spindle assembly checkpoint protein
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Mad2 *= CyclinB and Cdk1 and (not ((pAPC and Cdc20) or Metaphase))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: pAPC inactivates spindle assembly checkpoint
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Inhibition
+LinkType: Binding_Localization
+LinkDescription: Cdc20 binding inhibits Mad2
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: CyclinB promotes Mad2 activation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdk1 phosphorylation activates Mad2
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Metaphase
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: Metaphase alignment turns off spindle checkpoint
+LinkNotes: 
+InLink}
+Node}//Mad2
+
+Node{
+NodeMetaData{
+NodeName: Cdc25C
+NodeGenes: 
+NodeType: Phosphatase
+NodeColor: lime
+NodeCoordinate: 1750, 1600
+NodeDescription: Cdk1 activating phosphatase
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cdc25C *= CyclinA or (CyclinB and Cdk1)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: CyclinA-Cdk phosphorylates and activates Cdc25C
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: CyclinB-Cdk1 phosphorylates and activates Cdc25C
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdk1 phosphorylates and activates Cdc25C (positive feedback)
+LinkNotes: 
+InLink}
+Node}//Cdc25C
+
+Node{
+NodeMetaData{
+NodeName: Cdc25A
+NodeGenes: 
+NodeType: Phosphatase
+NodeColor: lime
+NodeCoordinate: 2000, 1600
+NodeDescription: Cdk2 activating phosphatase
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Cdc25A *= (E2F1 and (CyclinE or CyclinA)) or ((not Cdh1) and CyclinE and CyclinA)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Ubiquitination
+LinkDescription: Cdh1 targets Cdc25A for degradation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: CyclinA-Cdk phosphorylates and activates Cdc25A
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: E2F1
+LinkEffect: Activation
+LinkType: Transcription
+LinkDescription: E2F1 transcriptionally activates Cdc25A
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinE
+LinkEffect: Activation
+LinkType: Indirect
+LinkDescription: CyclinE-Cdk2 promotes Cdc25A activity
+LinkNotes: 
+InLink}
+Node}//Cdc25A
+
+Node{
+NodeMetaData{
+NodeName: Replication
+NodeGenes: 
+NodeType: Process
+NodeColor: gold
+NodeCoordinate: 1750, 1400
+NodeDescription: DNA replication process
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Replication *= CyclinE and Cdc25A and (not four_N_DNA)
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinE
+LinkEffect: Context_Dependent
+LinkType: Complex_Process
+LinkDescription: CyclinE-Cdk2 initiates DNA replication
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc25A
+LinkEffect: Activation
+LinkType: Phosphorylation
+LinkDescription: Cdc25A promotes replication initiation
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: four_N_DNA
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: 4N DNA content inhibits further replication
+LinkNotes: 
+InLink}
+Node}//Replication
+
+Node{
+NodeMetaData{
+NodeName: four_N_DNA
+NodeGenes: 
+NodeType: State
+NodeColor: silver
+NodeCoordinate: 2000, 1400
+NodeDescription: 4N DNA content state
+NodeNotes: 
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	four_N_DNA *= (not Cdh1) and (four_N_DNA or (CyclinA and Replication))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: CyclinA
+LinkEffect: Activation
+LinkType: Complex_Process
+LinkDescription: CyclinA promotes completion of DNA replication
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Replication
+LinkEffect: Activation
+LinkType: Complex_Process
+LinkDescription: DNA replication leads to 4N DNA content
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdh1
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: Cdh1 activation resets DNA content to 2N
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: four_N_DNA
+LinkEffect: Activation
+LinkType: Autoregulation
+LinkDescription: 4N DNA state is maintained
+LinkNotes: 
+InLink}
+Node}//four_N_DNA
+
+Node{
+NodeMetaData{
+NodeName: Metaphase
+NodeGenes: 
+NodeType: State
+NodeColor: lightblue
+NodeCoordinate: 2250, 1400
+NodeDescription: Metaphase state
+NodeNotes:  
+NodeMetaData}
+
+NodeGate{
+DiscreteLogic{
+	Metaphase *= four_N_DNA and CyclinB and Cdk1 and (not (pAPC and Cdc20))
+DiscreteLogic}
+NodeGate}
+
+InLink{
+InputNode: four_N_DNA
+LinkEffect: Activation
+LinkType: Complex_Process
+LinkDescription: 4N DNA content required for metaphase
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: CyclinB
+LinkEffect: Activation
+LinkType: Complex_Process
+LinkDescription: CyclinB promotes metaphase entry
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdk1
+LinkEffect: Activation
+LinkType: Complex_Process
+LinkDescription: Cdk1 activity required for metaphase
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: pAPC
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: pAPC inhibits metaphase maintenance
+LinkNotes: 
+InLink}
+
+InLink{
+InputNode: Cdc20
+LinkEffect: Inhibition
+LinkType: Complex_Process
+LinkDescription: Cdc20 inhibits metaphase maintenance
+LinkNotes: 
+InLink}
+Node}//Metaphase
+
+ModelGraph}
+Model}
+Model}
+
+CitationDictionary{
+CitationDictionary}

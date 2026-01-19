@@ -1,0 +1,16 @@
+DMMSFile: Cell_cycle_gates.dmms
+
+LayerParameters{
+    LayerName: Complete_Cell_Cycle_Model_molecular
+    
+    Sampling{
+        Sample: 100 100 0.02
+ 
+    Sampling}
+    
+    InputSpaceDiagram{
+        AxesOrder: GF
+        
+    InputSpaceDiagram}
+LayerParameters}
+

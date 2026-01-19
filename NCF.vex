@@ -1,0 +1,15 @@
+DMMSFile: cell_cycle_NCF.dmms
+
+LayerParameters{
+    LayerName: Complete_Cell_Cycle_Model_molecular
+    
+    Sampling{
+        Sample: 1000 1000 0.02
+
+    Sampling}
+    
+    InputSpaceDiagram{
+        AxesOrder: GF
+
+    InputSpaceDiagram}
+LayerParameters}
