@@ -4,7 +4,7 @@ LayerParameters{
     LayerName: Complete_Cell_Cycle_Model_molecular
     
     Sampling{
-        Sample: 100 100 0.02
+        Sample: 100 100 0.0
  
     Sampling}
     
